@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+      
+      - name: Lint with ruff
+        run: ruff check . --output-format=github
+      
+      - name: Run unit tests
+        env:
+          GROQ_API_KEY: test-key
+          GOOGLE_API_KEY: test-key
+          TAVILY_API_KEY: test-key
+        run: |
+          pytest tests/ -v --tb=short --cov=. --cov-report=xml \
+            -m "not integration" \
+            --ignore=tests/test_agent.py
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+        continue-on-error: true  # jangan gagalkan CI karena coverage upload
