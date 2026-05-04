@@ -20,7 +20,9 @@ def use_temp_db(temp_db):
 def get_tracker():
     """Import fresh setiap test agar DB_PATH ter-refresh."""
     import importlib
+    import config
     import tools.tracker as t
+    importlib.reload(config)
     importlib.reload(t)
     return t
 
@@ -128,7 +130,9 @@ class TestCheckFollowups:
         """Manually insert stale record to simulate old application."""
         import sqlite3
         stale_date = (datetime.now() - timedelta(days=10)).isoformat()
+        t = get_tracker()
         conn = sqlite3.connect(temp_db)
+        t._ensure_tables(conn)
         conn.execute("""
             INSERT INTO applications (company, role, status, last_action, applied_at)
             VALUES ('OldCo', 'Dev', 'sent', ?, ?)
@@ -145,7 +149,9 @@ class TestCheckFollowups:
         """Application sent 2 days ago should NOT be flagged with 7-day threshold."""
         import sqlite3
         recent_date = (datetime.now() - timedelta(days=2)).isoformat()
+        t = get_tracker()
         conn = sqlite3.connect(temp_db)
+        t._ensure_tables(conn)
         conn.execute("""
             INSERT INTO applications (company, role, status, last_action, applied_at)
             VALUES ('NewCo', 'Dev', 'sent', ?, ?)
@@ -161,7 +167,9 @@ class TestCheckFollowups:
         """Test with 3-day threshold instead of default 7."""
         import sqlite3
         date_5_days_ago = (datetime.now() - timedelta(days=5)).isoformat()
+        t = get_tracker()
         conn = sqlite3.connect(temp_db)
+        t._ensure_tables(conn)
         conn.execute("""
             INSERT INTO applications (company, role, status, last_action, applied_at)
             VALUES ('MidCo', 'Dev', 'sent', ?, ?)
