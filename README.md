@@ -1,63 +1,80 @@
-# 🎯 JobHunterAI
+# 🎯 JobHunterAI - Autonomous Career Copilot
 
-AI Agent berbasis LangGraph untuk riset perusahaan target, cold email, dan job application tracking.
+![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agent-orange.svg)
+![Groq](https://img.shields.io/badge/Groq-Llama%203-green.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-UI-red.svg)
 
-## Stack
+**JobHunterAI** adalah sistem *Autonomous AI Agent* berbasis **LangGraph** yang dirancang untuk mengotomatisasi siklus riset karir dan *cold outreach*. Agent ini bertindak sebagai asisten karir proaktif yang dapat menganalisis pasar, melakukan riset mendalam pada perusahaan target, menyusun email personal, dan melacak status lamaran pekerjaan.
 
-- **LLM:** Groq (Llama 3.3 70B) — GRATIS
-- **Search:** Tavily API — GRATIS 1000 req/bulan
-- **Agent:** LangGraph 0.2+ (ReAct loop)
-- **Database:** SQLite (lokal, no setup)
-- **UI:** Streamlit
-- **CI/CD:** GitHub Actions
-- **Deploy:** Railway
+Proyek ini dibangun sebagai portofolio pengembangan **Agentic AI Workflow** menggunakan konsep *ReAct (Reasoning + Acting)*.
 
-## Quick Start
+---
+
+## ✨ Fitur Utama (Agent Capabilities)
+
+Agent ini dibekali dengan berbagai *Tools* yang dapat ia gunakan secara mandiri berdasarkan konteks percakapan:
+
+- 🔍 **Market Analyzer**: Menganalisis tren pasar dan *skill gaps* secara real-time berdasarkan *role* yang dituju (menggunakan Tavily Search).
+- 🏢 **Company Research**: Mengekstraksi visi, misi, dan kultur perusahaan sebelum melamar untuk personalisasi yang maksimal.
+- ✍️ **Cold Email Writer**: Merangkai email lamaran/koneksi secara otomatis yang disesuaikan dengan profil pengguna dan hasil riset perusahaan.
+- 📊 **Application Tracker**: Mencatat setiap lamaran yang dikirim ke database SQLite lokal secara mandiri.
+- 🔔 **Follow-up Checker**: Mengidentifikasi lamaran yang sudah masuk masa tenggang (ghosting) dan perlu di-*follow up*.
+
+---
+
+## 🏗️ Arsitektur Agent
+
+Sistem ini menggunakan arsitektur **LangGraph StateGraph** dengan siklus `Agent -> Tools -> Agent`.
+
+```mermaid
+graph TD
+    A[User Input] --> B(LangGraph Agent Node)
+    B --> C{Tools Decision}
+    C -->|Research| D[Tavily Search API]
+    C -->|Database| E[SQLite Tracker]
+    C -->|Generation| F[Groq LLM]
+    D --> B
+    E --> B
+    F --> B
+    B --> G[Final Response to Streamlit UI]
+```
+
+## 💻 Tech Stack
+
+- **LLM Engine:** Groq (Llama 3.3 70B) — *High-speed inference untuk pengalaman interaktif.*
+- **Search Tool:** Tavily API — *Riset web yang dioptimalkan untuk LLM.*
+- **Orchestration:** LangGraph (0.2+)
+- **Memory & State:** SQLite & LangGraph Checkpointer
+- **User Interface:** Streamlit
+- **CI/CD:** GitHub Actions (Automated Pytest)
+
+---
+
+## 🚀 Quick Start (Local Setup)
 
 ```bash
-# 1. Clone
-git clone https://github.com/USERNAME/jobhunterai.git
+# 1. Clone Repository
+git clone https://github.com/fauzinoorsyabani/jobhunterai.git
 cd jobhunterai
 
-# 2. Setup
+# 2. Setup Virtual Environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate  # Untuk Windows: venv\Scripts\activate
 pip install -r requirements-dev.txt
 
-# 3. Environment
+# 3. Environment Variables
 cp .env.example .env
-# Edit .env → tambahkan API keys
+# Edit file .env dan masukkan API Keys Anda (Groq, Tavily)
 
-# 4. Run
+# 4. Jalankan Aplikasi
 streamlit run ui/app.py
 ```
 
-## API Keys (Semua GRATIS)
+## 🔑 API Keys Requirement
+Semua dependensi menggunakan *free-tier* API:
+- `GROQ_API_KEY`: Dapatkan dari [console.groq.com](https://console.groq.com)
+- `TAVILY_API_KEY`: Dapatkan dari [tavily.com](https://tavily.com)
 
-| Key | Dapatkan di | Fungsi |
-|-----|------------|--------|
-| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | LLM (email, research, market) |
-| `GOOGLE_API_KEY` | [aistudio.google.com](https://aistudio.google.com) | Fallback LLM |
-| `TAVILY_API_KEY` | [tavily.com](https://tavily.com) | Web search |
-
-## Architecture
-
-```
-User Input → LangGraph Agent → Tools:
-  ├── company_research (Tavily + Groq)
-  ├── email_writer (Groq)
-  ├── track_application (SQLite)
-  ├── check_followups (SQLite)
-  ├── update_application_status (SQLite)
-  └── market_analyzer (Tavily + Groq)
-```
-
-## Testing
-
-```bash
-# Unit tests (no API key needed)
-pytest tests/ -v -m "not integration" --tb=short
-
-# All tests (needs real API keys)
-pytest tests/ -v --tb=short
-```
+---
+*Developed by Fauzi Noorsyabani - 2026*
